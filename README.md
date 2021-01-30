@@ -1,0 +1,1 @@
+# swift-duplicate-images-finder
