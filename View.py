@@ -1,17 +1,16 @@
-#https://github.com/hoffstadt/DearPyGui/wiki/Creating-Widgets
+from typing import Callable
 
-#https://github.com/hoffstadt/DearPyGui/wiki/File-and-Directory-Selector
-
-#https://pypi.org/project/pyinstaller/
-
-# https://github.com/hoffstadt/DearPyGui/blob/master/DearPyGui/dearpygui/core.pyi
 
 from dearpygui import core, simple
 
+from FileMetaData import FileMetaDataList
 
 class View:
 
-    def __init__(self, start_scan_callback, delete_image_callback):
+    def __init__(self, 
+        start_scan_callback: Callable, 
+        delete_image_callback: Callable,
+        delete_all_duplicates_callback: Callable):
 
         self._scan_directories = []        
 
@@ -22,13 +21,16 @@ class View:
 
         self._start_scan_callback = start_scan_callback
         self._delete_image_callback = delete_image_callback
+        self._delete_all_duplicates_callback = delete_all_duplicates_callback
 
         self._app_windows_size = {}
         self._app_windows_size['width'] = 1280
         self._app_windows_size['height'] = 780
 
+        self._control_text_color=[0, 200, 255]
 
-    def Init(self):
+
+    def Init(self) -> None:
 
         self._create_primary_window()
 
@@ -37,14 +39,15 @@ class View:
         core.start_dearpygui(primary_window=self._primary_window_name)
 
 
-    def ShowScanInProgressWindow(self):
+    def ShowScanInProgressWindow(self)-> None:
         simple.hide_item(self._new_scan_window_name)
 
         with simple.window(self._scan_in_progress_window_name):
             core.add_text('Scan in progress')
 
 
-    def HideScanInProgressWindow(self):
+
+    def HideScanInProgressWindow(self) -> None:
         simple.hide_item(self._scan_in_progress_window_name)
 
    
@@ -60,11 +63,26 @@ class View:
                 y_pos=20,
                 label='Results')
 
-            core.add_text('Results')
+
+            core.add_text(
+                name='Group operations',
+                color=self._control_text_color)
+
+            core.add_button(
+                    'Delete all duplicates, keep newest file', 
+                    callback=self._delete_all_duplicate_click_hander,
+                    callback_data=dupicates)
+
+            core.add_separator()
+
+            core.add_text(
+                'Results', 
+                color=self._control_text_color)
+
 
             for dupicate_image in dupicates:
 
-               self. _draw_duplicates_set(dupicate_image)
+               self._draw_duplicates_set(dupicate_image)
 
 
     def ShowNewScanWindow(self) -> None:
@@ -82,10 +100,13 @@ class View:
         self._update_start_scan_window()
             
 
+    def _delete_all_duplicate_click_hander(self, sender, dupicates: [FileMetaDataList]) -> None:
+        self._delete_all_duplicates_callback(dupicates)
+        
 
     def _create_primary_window(self) -> None:
 
-        core.set_main_window_title('Duplicate Images manager')
+        core.set_main_window_title('Swift Duplicate Images Finder')
         core.set_main_window_size(
             self._app_windows_size['width'] + 20, 
             self._app_windows_size['height'] + 65)
@@ -130,15 +151,13 @@ class View:
         self._delete_image_callback(file_path)
 
 
-    def _draw_duplicates_set(self, duplicate_images_list: [str]) -> None:
+    def _draw_duplicates_set(self, duplicate_images_list: FileMetaDataList) -> None:
         
         try:
 
             file_path = duplicate_images_list[0].GetPath()
 
             core.add_drawing(file_path, width=100, height=100)
-
-            print(duplicate_images_list)
 
             core.draw_image(file_path, file_path, 
                     [0, 0], pmax=[100, 100], uv_min=[0, 0], uv_max=[1, 1], tag="image")
@@ -154,6 +173,8 @@ class View:
 
                 core.add_same_line()
                 core.add_text(file_path)
+
+            core.add_separator()
 
 
         except Exception as e:

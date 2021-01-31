@@ -85,18 +85,19 @@ class DuplicateImagesManager:
     def _handle_image_file(self, file_path):
 
             try:
-                file_size = stat(file_path).st_size
+                stat_return_value = stat(file_path)
 
-                #print(file_path, file_size)
+                file_size = stat_return_value.st_size
+                last_edit_time = stat_return_value.st_mtime
 
                 file_content = self._read_binary_file(file_path, 1024)
 
                 hash_value = self._calc_hash(file_content)
 
                 if hash_value in self.files_dict:
-                     self.files_dict[hash_value].append(FileMetaData(file_path, file_size))
+                     self.files_dict[hash_value].append(FileMetaData(file_path, file_size, last_edit_time))
                 else:
-                    self.files_dict[hash_value] = [FileMetaData(file_path, file_size)]
+                    self.files_dict[hash_value] = [FileMetaData(file_path, file_size, last_edit_time)]
 
             except Exception as e:
                 print('Failed to handle file [%s] with exception: [%s]' % (file_path, e))

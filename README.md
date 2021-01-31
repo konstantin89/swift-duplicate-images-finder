@@ -1,8 +1,17 @@
 # Swift Duplicate Images Finder
 
-https://www.youtube.com/watch?v=Kg1Yvry_Ydk    -  Virtual enviroments
 
-pip install dearpygui
+## Brief
+
+
+## Links
+
+[DearPyGui Github page](https://github.com/hoffstadt/DearPyGui)
+[DearPyGui Core API](https://github.com/hoffstadt/DearPyGui/blob/master/DearPyGui/dearpygui/core.pyi)
+
+
+
+
 
 ## Commands
 
@@ -12,4 +21,6 @@ venv\Scripts\activate
 venv\Scripts\deactivate
 pip list
 pip freeze > requirments.txt
+
+pip install dearpygui
 ```
