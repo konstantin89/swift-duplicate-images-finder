@@ -17,5 +17,4 @@ class FileMetaData:
     def GetLastEditTime(self):
         return self.last_edit_time
 
-
 FileMetaDataList = NewType('FileMetaDataList', [FileMetaData])

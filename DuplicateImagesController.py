@@ -58,8 +58,10 @@ class DuplicateImagesController:
                 % (file_path, e))
 
 
-    def _delete_all_duplicated_keep_newest(self, duplicates: FileMetaDataList):
+    def _delete_all_duplicated_keep_newest(self, duplicates: FileMetaDataList) -> FileMetaDataList:
 
+        updated_duplicate_list = []
+        
         for duplicate_file_list in duplicates:
             newest_file = self._get_newest_file(duplicate_file_list)
 
@@ -69,6 +71,9 @@ class DuplicateImagesController:
                 else:
                     self._delete_file(file.GetPath())
 
+            updated_duplicate_list.append([newest_file])
+        
+        return updated_duplicate_list
     
     def _get_newest_file(self, files: FileMetaDataList):
         return max(files, key=lambda file: file.GetLastEditTime())
