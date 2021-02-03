@@ -38,25 +38,18 @@ class View:
     def Init(self) -> None:
 
         self._create_primary_window()
-        self.ShowNewScanWindow()
 
-        core.start_dearpygui(primary_window=self._primary_window_name)
-
-
-    def ShowScanInProgressWindow(self)-> None:
-        simple.hide_item(self._new_scan_window_name)
-
+        with simple.window(self._new_scan_window_name):
+            core.configure_item(
+                self._new_scan_window_name,
+                    width=self._app_windows_size['width'],
+                    height=self._app_windows_size['height'],
+                    x_pos=0,
+                    y_pos=20,
+                    label='Start New Scan')
+                    
         with simple.window(self._scan_in_progress_window_name):
             core.add_text('Scan in progress')
-
-
-    def HideScanInProgressWindow(self) -> None:
-        simple.hide_item(self._scan_in_progress_window_name)
-
-   
-    def ShowResultsWindows(self, dupicates: [FileMetaDataList]) -> None:
-        
-        self._duplicates_list = dupicates
 
         with simple.window(self._results_window_name):
 
@@ -68,20 +61,36 @@ class View:
                 y_pos=20,
                 label='Results')
 
-            self._render_results_window()
+
+        self.ShowNewScanWindow()
+
+        core.start_dearpygui(primary_window=self._primary_window_name)
+
+
+    def ShowScanInProgressWindow(self)-> None:
+        simple.hide_item(self._new_scan_window_name)
+        simple.hide_item(self._results_window_name)
+        simple.show_item(self._scan_in_progress_window_name)
+
+
+    def ShowResultsWindows(self, dupicates: [FileMetaDataList]) -> None:
+        
+        self._duplicates_list = dupicates
+
+        simple.hide_item(self._scan_in_progress_window_name)
+        simple.hide_item(self._new_scan_window_name)
+        simple.show_item(self._results_window_name)
+
+        self._render_results_window()
 
 
     def ShowNewScanWindow(self) -> None:
 
-        with simple.window(self._new_scan_window_name):
-
-            core.configure_item(
-                self._new_scan_window_name,
-                    width=self._app_windows_size['width'],
-                    height=self._app_windows_size['height'],
-                    x_pos=0,
-                    y_pos=20,
-                    label='Start New Scan')
+        self._scan_directories = []
+        
+        simple.hide_item(self._scan_in_progress_window_name)
+        simple.hide_item(self._results_window_name)
+        simple.show_item(self._new_scan_window_name)
 
         self._render_start_scan_window()
             
@@ -95,6 +104,7 @@ class View:
     def _create_primary_window(self) -> None:
 
         core.set_main_window_title('Swift Duplicate Images Finder')
+
         core.set_main_window_size(
             self._app_windows_size['width'] + 20, 
             self._app_windows_size['height'] + 65)
@@ -106,6 +116,11 @@ class View:
                 label='Duplicate Images Manager')
 
             core.add_menu_bar("MenuBar")
+
+            core.add_menu("Actions")
+            core.add_menu_item("Start new scan", callback=self._new_scan_click_callback)
+            #core.add_menu_item("Quit", callback=core.show_logger)
+            core.end()
 
             core.add_menu("Themes")
             core.add_menu_item("Dark", callback=self._theme_callback)
@@ -132,6 +147,14 @@ class View:
         """
 
         core.set_theme(theme_str)
+
+
+    def _new_scan_click_callback(self, sender: str, data: None) -> None:
+        """ Open the 'start scan window'
+        """
+
+        self.ShowNewScanWindow()
+
 
 
     ### Results Window Logic ###

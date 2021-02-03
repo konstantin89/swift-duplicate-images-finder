@@ -1,21 +1,46 @@
 from os import walk
 from os import stat
 
+from typing import TypedDict
+from typing import Tuple
+
 import hashlib
 
 from dearpygui import core
 from FileMetaData import FileMetaData
+from FileMetaData import FileMetaDataList
 
+
+class ScannedFilesDict(TypedDict):
+    """ Dictionary that maintains all the scanned files.
+        The key is the hash, and the value is list of files.
+        Two same files will have same hash, so they will be 
+        placed in same files list. 
+    """
+    hash_value: str
+    files:FileMetaDataList
 
 class DuplicateImagesManager:
 
-    def __init__(self, supported_image_formats):
+    def __init__(self, supported_image_formats: Tuple(str)):
+        """ Param supported_image_formats - Tuple of file types supported by scan.
+            Example calue: ('.gif', '.png')
+        """
+        
+        self.supported_image_formats: Tuple(str) = supported_image_formats
 
-        self.supported_image_formats = supported_image_formats
+        # Dictionary of file_hash -> list of files with this hash.
+        self.files_dict: ScannedFilesDict = {}
 
-        self.files_dict = {}
+        # Each element of this list is list of duplicate files.
+        self.duplicate_files: [FileMetaDataList] = []
 
-        self.duplicate_files = {}
+
+    def CleanResults(self):
+        """ Clear the results of previous scan.
+        """
+        self.files_dict.clear()
+        self.duplicate_files.clear()
 
 
     def ScanDirectories(self, scan_roots):
@@ -32,11 +57,11 @@ class DuplicateImagesManager:
             self._scan_path(scan_root)
 
 
-    def GetDuplicates(self):
+    def GetDuplicates(self) -> [FileMetaDataList]:
 
         duplicates = []
 
-        for hash_value, files in self.files_dict.items():
+        for files in self.files_dict.values():
 
             if(len(files) > 1):
                duplicates = duplicates + self._handle_duplicate_candidates(files)
@@ -113,7 +138,7 @@ class DuplicateImagesManager:
         return h.hexdigest()
 
 
-    def _handle_duplicate_candidates(self, duplicates_candidates):
+    def _handle_duplicate_candidates(self, duplicates_candidates: FileMetaDataList) -> [FileMetaDataList]:
         
         if len(duplicates_candidates) <= 1:
             return []

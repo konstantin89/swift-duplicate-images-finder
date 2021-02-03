@@ -8,6 +8,9 @@ from FileMetaData import FileMetaDataList
 
 
 class DuplicateImagesController:
+    """ Controller for 'Duplicate image finder' application.
+        Implements the 'Controller' from MVC design pattern.
+    """
 
     def __init__(self):
 
@@ -16,8 +19,6 @@ class DuplicateImagesController:
         start_scan_callback = lambda scan_directories: self._start_scan_click_callback(scan_directories)
         delete_image_callback = lambda path_to_delete: self._delete_file(path_to_delete)
         delete_all_duplicates = lambda duplicates: self._delete_all_duplicated_keep_newest(duplicates)
-
-
 
         self._view = View(
             start_scan_callback, 
@@ -33,14 +34,15 @@ class DuplicateImagesController:
 
 
     def _start_scan_click_callback(self, scan_directories: [str]) -> None:
+        """ Handler method for click on 'start scan' button.
+        """
 
         core.log_debug('DuplicateImagesController - starting scan on dirs [%s]' % (scan_directories))
 
         self._view.ShowScanInProgressWindow()
 
+        self._imageManager.CleanResults()
         self._imageManager.ScanDirectories(scan_directories)
-
-        self._view.HideScanInProgressWindow()       
 
         duplicates = self._imageManager.GetDuplicates()
 
