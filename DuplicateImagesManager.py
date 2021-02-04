@@ -22,12 +22,12 @@ class ScannedFilesDict(TypedDict):
 
 class DuplicateImagesManager:
 
-    def __init__(self, supported_image_formats: Tuple(str)):
+    def __init__(self, supported_image_formats):
         """ Param supported_image_formats - Tuple of file types supported by scan.
             Example calue: ('.gif', '.png')
         """
-        
-        self.supported_image_formats: Tuple(str) = supported_image_formats
+
+        self.supported_image_formats = supported_image_formats
 
         # Dictionary of file_hash -> list of files with this hash.
         self.files_dict: ScannedFilesDict = {}
