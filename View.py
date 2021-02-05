@@ -5,6 +5,8 @@ from dearpygui import core, simple
 from FileMetaData import FileMetaDataList
 from FileMetaData import FileMetaData
 
+from ScanInProgressWindowView import ScanInProgressWindowView
+
 class View:
     """ View class of the MVC (Model View Controller) design pattern.
         This class implements all GUI related logic.
@@ -18,9 +20,10 @@ class View:
         self._scan_directories: [str] = []   
         self._duplicates_list: [FileMetaDataList] = []     
 
+        self._scan_in_progress_window = ScanInProgressWindowView()
+
         self._primary_window_name: str          = 'Duplicate Image Manager'
         self._new_scan_window_name: str         = 'Start New Scan'
-        self._scan_in_progress_window_name: str = 'Scan in progress'
         self._results_window_name: str          = 'Results'
 
         self._start_scan_callback: Callable            = start_scan_callback
@@ -47,9 +50,6 @@ class View:
                     x_pos=0,
                     y_pos=20,
                     label='Start New Scan')
-                    
-        with simple.window(self._scan_in_progress_window_name):
-            core.add_text('Scan in progress')
 
         with simple.window(self._results_window_name):
 
@@ -70,16 +70,18 @@ class View:
     def ShowScanInProgressWindow(self)-> None:
         simple.hide_item(self._new_scan_window_name)
         simple.hide_item(self._results_window_name)
-        simple.show_item(self._scan_in_progress_window_name)
+
+        self._scan_in_progress_window.ShowWindow()
 
 
     def ShowResultsWindows(self, dupicates: [FileMetaDataList]) -> None:
         
         self._duplicates_list = dupicates
 
-        simple.hide_item(self._scan_in_progress_window_name)
         simple.hide_item(self._new_scan_window_name)
         simple.show_item(self._results_window_name)
+
+        self._scan_in_progress_window.HideWindow()
 
         self._render_results_window()
 
@@ -88,9 +90,11 @@ class View:
 
         self._scan_directories = []
         
-        simple.hide_item(self._scan_in_progress_window_name)
         simple.hide_item(self._results_window_name)
         simple.show_item(self._new_scan_window_name)
+
+        self._scan_in_progress_window.HideWindow()
+
 
         self._render_start_scan_window()
             

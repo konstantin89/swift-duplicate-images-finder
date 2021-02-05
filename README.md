@@ -7,6 +7,7 @@
 ## Links
 
 [DearPyGui Github page](https://github.com/hoffstadt/DearPyGui)
+[DearPyGui Documentation](https://hoffstadt.github.io/DearPyGui/api_core.html)
 [DearPyGui Core API](https://github.com/hoffstadt/DearPyGui/blob/master/DearPyGui/dearpygui/core.pyi)
 
 

@@ -1,5 +1,8 @@
+from dearpygui import core, simple
+
 from os import walk
 from os import stat
+from os import path
 
 from typing import TypedDict
 from typing import Tuple
@@ -29,6 +32,8 @@ class DuplicateImagesManager:
 
         self.supported_image_formats = supported_image_formats
 
+        self._number_of_scanned_images: int = 0
+
         # Dictionary of file_hash -> list of files with this hash.
         self.files_dict: ScannedFilesDict = {}
 
@@ -36,11 +41,13 @@ class DuplicateImagesManager:
         self.duplicate_files: [FileMetaDataList] = []
 
 
+
     def CleanResults(self):
         """ Clear the results of previous scan.
         """
         self.files_dict.clear()
         self.duplicate_files.clear()
+        self._number_of_scanned_images = 0
 
 
     def ScanDirectories(self, scan_roots):
@@ -101,7 +108,8 @@ class DuplicateImagesManager:
         for (dirpath, dirnames, filenames) in walk(scan_root):
 
             for file_name in filenames:
-                full_file_name = dirpath + '\\' + file_name
+
+                full_file_name =  path.join(dirpath, file_name)
 
                 if(self._is_file_an_image(full_file_name)):  
                     self._handle_image_file(full_file_name)
@@ -110,6 +118,10 @@ class DuplicateImagesManager:
     def _handle_image_file(self, file_path):
 
             try:
+                self._number_of_scanned_images += 1
+
+                core.set_value('number_of_scanned_images', self._number_of_scanned_images)
+
                 stat_return_value = stat(file_path)
 
                 file_size = stat_return_value.st_size
