@@ -20,8 +20,12 @@
 python  -m venv venv
 venv\Scripts\activate
 venv\Scripts\deactivate
+
 pip list
 pip freeze > requirments.txt
+pip install -r .\requirments.txt
 
 pip install dearpygui
+pip install pyinstaller
+
 ```
