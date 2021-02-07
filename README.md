@@ -1,5 +1,6 @@
 # Swift Duplicate Images Finder
 
+![](resources\logo.png)
 
 ## Brief
 

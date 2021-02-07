@@ -1,6 +1,9 @@
 from DuplicateImagesController import DuplicateImagesController
 
-if __name__ == '__main__':
 
+def main():
     controller = DuplicateImagesController()
     controller.Start()
+
+if __name__ == '__main__':
+    main()
