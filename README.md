@@ -1,12 +1,12 @@
 # Swift Duplicate Images Finder
 
-![](resources\logo.png)
+![](resources/logo.png)
 
 ## Brief
 
 Swift Duplicate Images Finder is simple application that can be used to detect duplicate images.
 
-![](resources\results_screen_shot.PNG)
+![](resources/results_screen_shot.PNG)
 
 
 </br>
