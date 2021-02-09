@@ -292,13 +292,13 @@ class View:
         
         core.delete_item(item=self._new_scan_window_name, children_only=True)
 
-        core.add_button(
-            'Start Scan', 
-            callback=self._start_scan_click_handler, 
-            callback_data=self._scan_directories,
-            parent=self._new_scan_window_name)
+        core.add_text('Please choose directories to scan.', parent=self._new_scan_window_name)
 
-        core.add_same_line(parent=self._new_scan_window_name)
+        core.add_text('Press \'Start Scan1\' to run duplicate images search', parent=self._new_scan_window_name)
+
+        core.add_text( '',  parent=self._new_scan_window_name)
+
+        core.add_separator(parent=self._new_scan_window_name)
 
         core.add_button(
             'Add Scan Directory', 
@@ -308,6 +308,11 @@ class View:
         core.add_text('', parent=self._new_scan_window_name)
 
         core.add_text('Folders to scan', parent=self._new_scan_window_name)
+
+        if not self._scan_directories:
+            core.add_text('No directories chosen', 
+            parent=self._new_scan_window_name,
+            color=[249, 19, 19])
 
         for scan_directory in self._scan_directories:
 
@@ -325,12 +330,30 @@ class View:
                 parent=self._new_scan_window_name)
 
 
-    def _add_scan_directory_callback(self, sender, data):
+        core.add_separator(parent=self._new_scan_window_name)
 
+        
+        core.add_text( '',  parent=self._new_scan_window_name)
+
+        core.add_button(
+            'Start Scan', 
+            callback=self._start_scan_click_handler, 
+            callback_data=self._scan_directories,
+            parent=self._new_scan_window_name)
+
+
+    def _add_scan_directory_callback(self, sender: str, data: str) -> None:
+        """ Click callback for add scan directory button
+        """
         core.open_file_dialog(callback=self._handle_selected_scan_path, extensions=".*")      
 
 
-    def _handle_selected_scan_path(self, sender, data):
+    def _handle_selected_scan_path(self, sender: str, data: [str]) -> None:
+        """ Callback for scan directory selector
+            data[0] contains chosen directory.
+            data[0] contains chosen file.
+        """
+
         directory = data[0]
 
         if directory in self._scan_directories:
@@ -341,7 +364,9 @@ class View:
         self._render_start_scan_window()
 
         
-    def _start_scan_click_handler(self, sender, scan_directories):
+    def _start_scan_click_handler(self, sender: str, scan_directories: [str]) -> None:
+        """ Click callback for start scan button
+        """
 
         if len(scan_directories) == 0:
             core.log_error('View: - scan dirs list is empty')
