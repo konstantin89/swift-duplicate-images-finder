@@ -1,7 +1,7 @@
 from DuplicateImagesController import DuplicateImagesController
 
-
 def main():
+
     controller = DuplicateImagesController()
     controller.Start()
 

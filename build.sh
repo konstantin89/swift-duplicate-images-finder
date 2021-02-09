@@ -1,1 +1,0 @@
-pyinstaller src/main.py --onefile --hidden-import dearpygui --icon=resources/icon.ico

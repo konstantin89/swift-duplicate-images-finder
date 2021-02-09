@@ -6,6 +6,7 @@ from FileMetaData import FileMetaDataList
 from FileMetaData import FileMetaData
 
 from ScanInProgressWindowView import ScanInProgressWindowView
+from HelloScreenView import HelloScreenView
 
 class View:
     """ View class of the MVC (Model View Controller) design pattern.
@@ -21,6 +22,9 @@ class View:
         self._duplicates_list: [FileMetaDataList] = []     
 
         self._scan_in_progress_window = ScanInProgressWindowView()
+
+        self._hello_screen_window = HelloScreenView(
+            new_scan_click_callback=lambda: self.ShowNewScanWindow())
 
         self._primary_window_name: str          = 'Duplicate Image Manager'
         self._new_scan_window_name: str         = 'Start New Scan'
@@ -62,14 +66,16 @@ class View:
                 label='Results')
 
 
-        self.ShowNewScanWindow()
+        self.ShowHelloWindow()
+
+        
 
         core.start_dearpygui(primary_window=self._primary_window_name)
 
 
     def ShowScanInProgressWindow(self)-> None:
-        simple.hide_item(self._new_scan_window_name)
-        simple.hide_item(self._results_window_name)
+
+        self._hide_all_windows()
 
         self._scan_in_progress_window.ShowWindow()
 
@@ -78,10 +84,9 @@ class View:
         
         self._duplicates_list = dupicates
 
-        simple.hide_item(self._new_scan_window_name)
-        simple.show_item(self._results_window_name)
+        self._hide_all_windows()
 
-        self._scan_in_progress_window.HideWindow()
+        simple.show_item(self._results_window_name)
 
         self._render_results_window()
 
@@ -90,13 +95,26 @@ class View:
 
         self._scan_directories = []
         
-        simple.hide_item(self._results_window_name)
+        self._hide_all_windows()
+
         simple.show_item(self._new_scan_window_name)
 
-        self._scan_in_progress_window.HideWindow()
-
-
         self._render_start_scan_window()
+
+
+    def ShowHelloWindow(self) -> None:
+        
+        self._hide_all_windows()
+        self._hello_screen_window.ShowWindow()
+
+
+    def _hide_all_windows(self)-> None:
+
+        simple.hide_item(self._results_window_name)
+        simple.hide_item(self._new_scan_window_name)
+
+        self._scan_in_progress_window.HideWindow()
+        self._hello_screen_window.HideWindow()
             
 
     def _delete_all_duplicate_click_hander(self, sender, dupicates: [FileMetaDataList]) -> None:
@@ -123,7 +141,7 @@ class View:
 
             core.add_menu("Actions")
             core.add_menu_item("Start new scan", callback=self._new_scan_click_callback)
-            #core.add_menu_item("Quit", callback=core.show_logger)
+            core.add_menu_item("Quit", callback=self._quit_app_click_handler)                                       
             core.end()
 
             core.add_menu("Themes")
@@ -159,6 +177,11 @@ class View:
 
         self.ShowNewScanWindow()
 
+
+    def _quit_app_click_handler(self, sender: str, data: None) -> None:
+        """ Terminate application
+        """
+        core.stop_dearpygui()
 
 
     ### Results Window Logic ###
