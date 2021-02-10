@@ -2,6 +2,8 @@ from dearpygui import core, simple
 
 import time
 
+from core_values_names import NUMBER_OF_SCANNED_IMAGES
+
 class ScanInProgressWindowView:
 
     def __init__(self):
@@ -26,7 +28,7 @@ class ScanInProgressWindowView:
 
             core.add_text('Number of scanned images: ')
             core.add_same_line()
-            core.add_text('##number_of_scanned_images', source='number_of_scanned_images')
+            core.add_text('##number_of_scanned_images', source=NUMBER_OF_SCANNED_IMAGES)
 
 
     def ShowWindow(self):

@@ -1,17 +1,15 @@
 from dearpygui import core, simple
 
 import time
-import webbrowser
 
 from resources import get_resource_full_path
+from utils import visit_source_web_page
 
 class HelloScreenView:
 
     def __init__(self, new_scan_click_callback: callable):
 
         self._window_name: str = 'Hello Screen'
-
-        self._source_webpage_url:str = 'https://github.com/konstantin89/swift-duplicate-images-finder'
 
         self._new_scan_click_callback:callable = new_scan_click_callback
 
@@ -70,12 +68,9 @@ class HelloScreenView:
 
     def _internal_new_scan_click_callback(self, sender: str, data: None):
 
-         self._new_scan_click_callback()
+        self._new_scan_click_callback()
 
 
     def _visit_source_page_click_callback(self, sender: None, data: None):
-        try:
-            webbrowser.open(self._source_webpage_url, new=2)
 
-        except Exception as e:
-            core.log_error('HelloScreenView - Failed to visit source page with exception : [%s]' % (e))
+        visit_source_web_page()

@@ -13,6 +13,9 @@ from dearpygui import core
 from FileMetaData import FileMetaData
 from FileMetaData import FileMetaDataList
 
+from core_values_names import NUMBER_OF_SCANNED_DIRS
+from core_values_names import NUMBER_OF_SCANNED_IMAGES
+
 
 class ScannedFilesDict(TypedDict):
     """ Dictionary that maintains all the scanned files.
@@ -33,6 +36,7 @@ class DuplicateImagesManager:
         self.supported_image_formats = supported_image_formats
 
         self._number_of_scanned_images: int = 0
+        self._number_of_scanned_dirs: int = 0
 
         # Dictionary of file_hash -> list of files with this hash.
         self.files_dict: ScannedFilesDict = {}
@@ -47,7 +51,9 @@ class DuplicateImagesManager:
         """
         self.files_dict.clear()
         self.duplicate_files.clear()
+
         self._number_of_scanned_images = 0
+        self._number_of_scanned_dirs = 0
 
 
     def ScanDirectories(self, scan_roots):
@@ -107,6 +113,12 @@ class DuplicateImagesManager:
         
         for (dirpath, dirnames, filenames) in walk(scan_root):
 
+            self._number_of_scanned_dirs += 1
+            
+            core.set_value(
+                NUMBER_OF_SCANNED_DIRS, 
+                self._number_of_scanned_images)
+
             for file_name in filenames:
 
                 full_file_name =  path.join(dirpath, file_name)
@@ -120,7 +132,9 @@ class DuplicateImagesManager:
             try:
                 self._number_of_scanned_images += 1
 
-                core.set_value('number_of_scanned_images', self._number_of_scanned_images)
+                core.set_value(
+                    NUMBER_OF_SCANNED_IMAGES, 
+                    self._number_of_scanned_images)
 
                 stat_return_value = stat(file_path)
 

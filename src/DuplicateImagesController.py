@@ -1,10 +1,15 @@
 from DuplicateImagesManager import DuplicateImagesManager
-from View import View
+from MainView import MainView
 
 from dearpygui import core
-import os 
 
 from FileMetaData import FileMetaDataList
+
+import os 
+from datetime import datetime
+
+from core_values_names import SCAN_DURATION_IN_SECS
+
 
 
 class DuplicateImagesController:
@@ -20,7 +25,7 @@ class DuplicateImagesController:
         delete_image_callback = lambda path_to_delete: self._delete_file(path_to_delete)
         delete_all_duplicates = lambda duplicates: self._delete_all_duplicated_keep_newest(duplicates)
 
-        self._view = View(
+        self._main_view = MainView(
             start_scan_callback, 
             delete_image_callback, 
             delete_all_duplicates)
@@ -30,7 +35,7 @@ class DuplicateImagesController:
 
     def Start(self) -> None:
 
-        self._view.Init()
+        self._main_view.Init()
 
 
     def _start_scan_click_callback(self, scan_directories: [str]) -> None:
@@ -39,14 +44,21 @@ class DuplicateImagesController:
 
         core.log_debug('DuplicateImagesController - starting scan on dirs [%s]' % (scan_directories))
 
-        self._view.ShowScanInProgressWindow()
+        self._main_view.ShowScanInProgressWindow()
+
+        scan_start_time = datetime.now()
 
         self._imageManager.CleanResults()
         self._imageManager.ScanDirectories(scan_directories)
-
         duplicates = self._imageManager.GetDuplicates()
 
-        self._view.ShowResultsWindows(duplicates)
+        scan_end_time = datetime.now()
+
+        scan_duration_in_secs = (scan_end_time-scan_start_time).total_seconds()
+
+        core.log_debug('DuplicateImagesController - Scan duration in secs is [%d]' % scan_duration_in_secs)
+
+        self._main_view.ShowResultsWindows(duplicates)
 
 
     def _delete_file(self, file_path):

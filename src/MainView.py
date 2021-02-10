@@ -5,10 +5,16 @@ from dearpygui import core, simple
 from FileMetaData import FileMetaDataList
 from FileMetaData import FileMetaData
 
+from utils import visit_source_web_page
+
 from ScanInProgressWindowView import ScanInProgressWindowView
 from HelloScreenView import HelloScreenView
 
-class View:
+from core_values_names import NUMBER_OF_SCANNED_IMAGES
+from core_values_names import NUMBER_OF_SCANNED_DIRS
+from core_values_names import SCAN_DURATION_IN_SECS
+
+class MainView:
     """ View class of the MVC (Model View Controller) design pattern.
         This class implements all GUI related logic.
     """
@@ -161,6 +167,10 @@ class View:
             core.add_menu_item("Show Logger", callback=core.show_logger)
             core.end()
 
+            core.add_menu("About")
+            core.add_menu_item("Visit source page", callback=self._visit_source_page_click_callback)
+            core.end()
+
             core.end()
 
 
@@ -169,6 +179,12 @@ class View:
         """
 
         core.set_theme(theme_str)
+
+    def _visit_source_page_click_callback(self, theme_str: str, data: None) -> None:
+        """ Visit project source page
+        """
+        
+        visit_source_web_page()
 
 
     def _new_scan_click_callback(self, sender: str, data: None) -> None:
@@ -253,18 +269,9 @@ class View:
 
         core.delete_item(item=self._results_window_name, children_only=True)
 
-        core.add_text(
-            name='Group operations',
-            color=self._control_text_color,
-            parent=self._results_window_name)
+        self._render_results_scan_summary()
 
-        core.add_button(
-                'Delete all duplicates, keep newest file', 
-                callback=self._delete_all_duplicate_click_hander,
-                callback_data=self._duplicates_list,
-                parent=self._results_window_name)
-
-        core.add_separator(parent=self._results_window_name)
+        self._render_results_group_operations()
 
         core.add_text(
             'Results', 
@@ -276,6 +283,58 @@ class View:
 
             self._draw_duplicates_set(dupicate_image)       
 
+
+    def _render_results_scan_summary(self):
+        """ Present the scan summary
+        """
+
+        core.add_text(
+            'Scan Summary',
+            color=self._control_text_color,
+            parent=self._results_window_name)
+
+        core.add_text(
+            'Number of images scanned: ',
+            parent=self._results_window_name)
+
+        core.add_same_line(parent=self._results_window_name)
+
+        core.add_text(
+            name='number_of_scanned_images_text',
+            source=NUMBER_OF_SCANNED_IMAGES,
+            parent=self._results_window_name)
+
+        core.add_text(
+            'Number duplicate image sets: ',
+            parent=self._results_window_name)
+
+        core.add_same_line(parent=self._results_window_name)
+
+        core.add_text(
+            str(len(self._duplicates_list)),
+            parent=self._results_window_name)
+
+        core.add_text('',  parent=self._results_window_name)
+
+
+    def _render_results_group_operations(self):
+        """
+        """
+
+        core.add_text(
+            name='Group operations',
+            color=self._control_text_color,
+            parent=self._results_window_name)
+
+        core.add_button(
+            'Keep newest file, delete all duplicates', 
+            callback=self._delete_all_duplicate_click_hander,
+            callback_data=self._duplicates_list,
+            parent=self._results_window_name) 
+
+        core.add_text('',  parent=self._results_window_name)
+
+        core.add_separator(parent=self._results_window_name)
 
 
     ### Start Scan Window ###
