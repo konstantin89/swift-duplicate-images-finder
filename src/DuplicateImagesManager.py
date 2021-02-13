@@ -1,18 +1,19 @@
-from dearpygui import core, simple
+# Standard library imports
+import hashlib
 
+from dearpygui import core, simple
 from os import walk
 from os import stat
 from os import path
-
 from typing import TypedDict
 from typing import Tuple
 
-import hashlib
-
+# Third party imports
 from dearpygui import core
+
+# Local application imports
 from FileMetaData import FileMetaData
 from FileMetaData import FileMetaDataList
-
 from core_values_names import NUMBER_OF_SCANNED_DIRS
 from core_values_names import NUMBER_OF_SCANNED_IMAGES
 

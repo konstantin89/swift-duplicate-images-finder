@@ -6,7 +6,7 @@ from dearpygui import core, simple
 GITHUB_LINK:str = 'https://github.com/konstantin89/swift-duplicate-images-finder'
 
 def visit_source_web_page():
-    """
+    """ Open Github repository of this project.
     """
 
     try:

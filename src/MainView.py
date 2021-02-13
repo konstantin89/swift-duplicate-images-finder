@@ -1,17 +1,20 @@
+# Standard library imports
 from typing import Callable
 
+# Third party imports
 from dearpygui import core, simple
 
+# Local application imports
 from FileMetaData import FileMetaDataList
 from FileMetaData import FileMetaData
 
 from utils import visit_source_web_page
+
 from ScanInProgressWindowView import ScanInProgressWindowView
 from HelloScreenView import HelloScreenView
+from ResultsWindowView import ResultsWindowView
+from StartNewScanWindowView import StartNewScanWindowView
 
-from core_values_names import NUMBER_OF_SCANNED_IMAGES
-from core_values_names import NUMBER_OF_SCANNED_DIRS
-from core_values_names import SCAN_DURATION_IN_SECS
 
 class MainView:
     """ View class of the MVC (Model View Controller) design pattern.
@@ -23,7 +26,10 @@ class MainView:
         delete_image_callback: Callable,
         delete_all_duplicates_callback: Callable):
 
-        self._scan_directories: [str] = []   
+        self._app_windows_size = {}
+        self._app_windows_size['width'] = 1280
+        self._app_windows_size['height'] = 780
+
         self._duplicates_list: [FileMetaDataList] = []     
 
         self._scan_in_progress_window = ScanInProgressWindowView()
@@ -31,80 +37,49 @@ class MainView:
         self._hello_screen_window = HelloScreenView(
             new_scan_click_callback=lambda: self.ShowNewScanWindow())
 
-        self._primary_window_name: str          = 'Duplicate Image Manager'
-        self._new_scan_window_name: str         = 'Start New Scan'
-        self._results_window_name: str          = 'Results'
+        self._results_window = ResultsWindowView(                    
+            width=self._app_windows_size['width'],
+            height=self._app_windows_size['height'],
+            x_pos=0,
+            y_pos=20,
+            delete_image_callback=delete_image_callback, 
+            delete_all_duplicates_callback=delete_all_duplicates_callback)
 
-        self._start_scan_callback: Callable            = start_scan_callback
-        self._delete_image_callback: Callable          = delete_image_callback
-        self._delete_all_duplicates_callback: Callable = delete_all_duplicates_callback
 
-        self._app_windows_size = {}
-        self._app_windows_size['width'] = 1280
-        self._app_windows_size['height'] = 780
+        self._start_new_scan_window = StartNewScanWindowView(
+            width=self._app_windows_size['width'],
+            height=self._app_windows_size['height'],
+            x_pos=0,
+            y_pos=20,
+            start_scan_callback=start_scan_callback)
 
-        # RGB color of special text
-        self._control_text_color = [0, 200, 255]
+        self._primary_window_name: str = 'Duplicate Image Manager'
 
 
     def Init(self) -> None:
 
         self._create_primary_window()
-
-        with simple.window(self._new_scan_window_name):
-            core.configure_item(
-                self._new_scan_window_name,
-                    width=self._app_windows_size['width'],
-                    height=self._app_windows_size['height'],
-                    x_pos=0,
-                    y_pos=20,
-                    label='Start New Scan')
-
-        with simple.window(self._results_window_name):
-
-            core.configure_item(
-            self._results_window_name,
-                width=self._app_windows_size['width'],
-                height=self._app_windows_size['height'],
-                x_pos=0,
-                y_pos=20,
-                label='Results')
-
-
         self.ShowHelloWindow()
-
-        
-
         core.start_dearpygui(primary_window=self._primary_window_name)
 
 
     def ShowScanInProgressWindow(self)-> None:
 
         self._hide_all_windows()
-
         self._scan_in_progress_window.ShowWindow()
 
 
     def ShowResultsWindows(self, dupicates: [FileMetaDataList]) -> None:
         
         self._duplicates_list = dupicates
-
         self._hide_all_windows()
-
-        simple.show_item(self._results_window_name)
-
-        self._render_results_window()
+        self._results_window.ShowWindow(dupicates)
 
 
     def ShowNewScanWindow(self) -> None:
-
-        self._scan_directories = []
         
         self._hide_all_windows()
-
-        simple.show_item(self._new_scan_window_name)
-
-        self._render_start_scan_window()
+        self._start_new_scan_window.ShowWindow()
 
 
     def ShowHelloWindow(self) -> None:
@@ -115,17 +90,10 @@ class MainView:
 
     def _hide_all_windows(self)-> None:
 
-        simple.hide_item(self._results_window_name)
-        simple.hide_item(self._new_scan_window_name)
-
         self._scan_in_progress_window.HideWindow()
         self._hello_screen_window.HideWindow()
-            
-
-    def _delete_all_duplicate_click_hander(self, sender, dupicates: [FileMetaDataList]) -> None:
-
-        self._duplicates_list = self._delete_all_duplicates_callback(dupicates)
-        self._render_results_window()
+        self._results_window.HideWindow()
+        self._start_new_scan_window.HideWindow()
         
 
     def _create_primary_window(self) -> None:
@@ -176,20 +144,17 @@ class MainView:
     def _theme_callback(self, theme_str: str, data: None) -> None:
         """ Set application GUI theme.
         """
-
         core.set_theme(theme_str)
 
     def _visit_source_page_click_callback(self, theme_str: str, data: None) -> None:
         """ Visit project source page
         """
-        
         visit_source_web_page()
 
 
     def _new_scan_click_callback(self, sender: str, data: None) -> None:
         """ Open the 'start scan window'
         """
-
         self.ShowNewScanWindow()
 
 
@@ -198,237 +163,4 @@ class MainView:
         """
         core.stop_dearpygui()
 
-
-    ### Results Window Logic ###
-
-    def _delete_file_button_click_handler(self, sender: str, file_to_delete: FileMetaData) -> None:
-        """ Click handler for the 'Delete File' button.
-        """
-
-        # Delete the image
-        self._delete_image_callback(file_to_delete.GetPath())
-
-        # Remove the deleted file from duplicates list
-        for duplicates_set in self._duplicates_list:
-
-            if file_to_delete in duplicates_set:
-                duplicates_set.remove(file_to_delete)
-                break
-
-        self._render_results_window()
-
-
-    def _draw_duplicates_set(self, duplicate_images_list: FileMetaDataList) -> None:
-        """ Draw a single image and all the files containing it.
-            All the files in duplicate_images_list containg duplicate of same image.
-        """
-        
-        try:
-
-            file_path = duplicate_images_list[0].GetPath()
-
-            core.add_drawing(
-                file_path, 
-                width=100, 
-                height=100, 
-                parent=self._results_window_name)
-
-            core.draw_image(
-                file_path, 
-                file_path, 
-                [0, 0], 
-                pmax=[100, 100],
-                uv_min=[0, 0], 
-                uv_max=[1, 1], 
-                tag="image")
-
-            for file in duplicate_images_list:
-                
-                file_path = file.GetPath()
-
-                core.add_button(
-                    'Delete ##'+file_path, 
-                    callback=self._delete_file_button_click_handler, 
-                    callback_data=file,
-                    parent=self._results_window_name)
-
-                core.add_same_line(parent=self._results_window_name)
-
-                core.add_text(
-                file_path, 
-                parent=self._results_window_name)
-
-            core.add_separator(parent=self._results_window_name)
-
-        except Exception as e:
-            core.log_error('View::_draw_duplicates_set - Exception : [%s]' % (e))
-        
-
-    def _render_results_window(self) -> None:
-
-        core.delete_item(item=self._results_window_name, children_only=True)
-
-        self._render_results_scan_summary()
-
-        self._render_results_group_operations()
-
-        core.add_text(
-            'Results', 
-            color=self._control_text_color,
-            parent=self._results_window_name)
-
-
-        for dupicate_image in self._duplicates_list:
-
-            self._draw_duplicates_set(dupicate_image)       
-
-
-    def _render_results_scan_summary(self):
-        """ Present the scan summary
-        """
-
-        core.add_text(
-            'Scan Summary',
-            color=self._control_text_color,
-            parent=self._results_window_name)
-
-        core.add_text(
-            'Number of images scanned: ',
-            parent=self._results_window_name)
-
-        core.add_same_line(parent=self._results_window_name)
-
-        core.add_text(
-            name='number_of_scanned_images_text',
-            source=NUMBER_OF_SCANNED_IMAGES,
-            parent=self._results_window_name)
-
-        core.add_text(
-            'Number duplicate image sets: ',
-            parent=self._results_window_name)
-
-        core.add_same_line(parent=self._results_window_name)
-
-        core.add_text(
-            str(len(self._duplicates_list)),
-            parent=self._results_window_name)
-
-        core.add_text('',  parent=self._results_window_name)
-
-
-    def _render_results_group_operations(self):
-        """ Render the 'Group Operations' block of 'Results' screen.
-        """
-
-        core.add_text(
-            name='Group operations',
-            color=self._control_text_color,
-            parent=self._results_window_name)
-
-        core.add_button(
-            'Keep newest file, delete all other duplicates', 
-            callback=self._delete_all_duplicate_click_hander,
-            callback_data=self._duplicates_list,
-            parent=self._results_window_name) 
-
-        core.add_text('',  parent=self._results_window_name)
-
-        core.add_separator(parent=self._results_window_name)
-
-
-    ### Start Scan Window ###
-
-    def _remove_scan_dir_click_handler(self, sender, scan_dir: str):
-
-        core.log_debug('View: Removing dir [%s] from scan' % (scan_dir))
-
-        self._scan_directories.remove(scan_dir)
-        self._render_start_scan_window()
-
-
-    def _render_start_scan_window(self):
-        
-        core.delete_item(item=self._new_scan_window_name, children_only=True)
-
-        core.add_text('Please choose directories to scan.', parent=self._new_scan_window_name)
-        core.add_text('Press \'Start Scan\' to run duplicate images search.', parent=self._new_scan_window_name)
-
-        core.add_text( '',  parent=self._new_scan_window_name)
-        core.add_separator(parent=self._new_scan_window_name)
-
-        core.add_button(
-            'Add Scan Directory', 
-            callback=self._add_scan_directory_callback,
-            parent=self._new_scan_window_name)
-
-        core.add_text('', parent=self._new_scan_window_name)
-
-        core.add_text('Folders to scan', parent=self._new_scan_window_name)
-
-        if not self._scan_directories:
-            core.add_text('No directories chosen', 
-            parent=self._new_scan_window_name,
-            color=[249, 19, 19])
-
-        for scan_directory in self._scan_directories:
-
-            core.add_button(
-                name='Remove ##'+scan_directory, 
-                parent=self._new_scan_window_name,
-                callback=self._remove_scan_dir_click_handler,
-                callback_data=scan_directory)
-
-            core.add_same_line(
-                parent=self._new_scan_window_name)
-
-            core.add_text(
-                name=scan_directory, 
-                parent=self._new_scan_window_name)
-
-
-        core.add_separator(parent=self._new_scan_window_name)
-
-        
-        core.add_text( '',  parent=self._new_scan_window_name)
-
-        core.add_button(
-            'Start Scan', 
-            callback=self._start_scan_click_handler, 
-            callback_data=self._scan_directories,
-            parent=self._new_scan_window_name)
-
-
-    def _add_scan_directory_callback(self, sender: str, data: str) -> None:
-        """ Click callback for add scan directory button
-        """
-        core.open_file_dialog(callback=self._handle_selected_scan_path, extensions=".*")      
-
-
-    def _handle_selected_scan_path(self, sender: str, data: [str]) -> None:
-        """ Callback for scan directory selector
-            data[0] contains chosen directory.
-            data[0] contains chosen file.
-        """
-
-        directory = data[0]
-
-        if directory in self._scan_directories:
-            return
-
-        self._scan_directories.append(directory)
-
-        self._render_start_scan_window()
-
-        
-    def _start_scan_click_handler(self, sender: str, scan_directories: [str]) -> None:
-        """ Click callback for start scan button
-        """
-
-        if len(scan_directories) == 0:
-            core.log_error('View: - scan dirs list is empty')
-            return
-
-        core.log_debug('View: Starting scan on dirs: %s' % self._scan_directories)
-
-        self._start_scan_callback(self._scan_directories)
 

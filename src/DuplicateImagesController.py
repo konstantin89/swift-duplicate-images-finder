@@ -1,15 +1,15 @@
-from DuplicateImagesManager import DuplicateImagesManager
-from MainView import MainView
-
-from dearpygui import core
-
-from FileMetaData import FileMetaDataList
-
+# Standard library imports
 import os 
 from datetime import datetime
 
-from core_values_names import SCAN_DURATION_IN_SECS
+# Third party imports
+from dearpygui import core
 
+# Local application imports
+from DuplicateImagesManager import DuplicateImagesManager
+from MainView import MainView
+from FileMetaData import FileMetaDataList
+from core_values_names import SCAN_DURATION_IN_SECS
 
 
 class DuplicateImagesController:
