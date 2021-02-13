@@ -6,7 +6,6 @@ from FileMetaData import FileMetaDataList
 from FileMetaData import FileMetaData
 
 from utils import visit_source_web_page
-
 from ScanInProgressWindowView import ScanInProgressWindowView
 from HelloScreenView import HelloScreenView
 
@@ -318,7 +317,7 @@ class MainView:
 
 
     def _render_results_group_operations(self):
-        """
+        """ Render the 'Group Operations' block of 'Results' screen.
         """
 
         core.add_text(
@@ -327,7 +326,7 @@ class MainView:
             parent=self._results_window_name)
 
         core.add_button(
-            'Keep newest file, delete all duplicates', 
+            'Keep newest file, delete all other duplicates', 
             callback=self._delete_all_duplicate_click_hander,
             callback_data=self._duplicates_list,
             parent=self._results_window_name) 
@@ -352,11 +351,9 @@ class MainView:
         core.delete_item(item=self._new_scan_window_name, children_only=True)
 
         core.add_text('Please choose directories to scan.', parent=self._new_scan_window_name)
-
-        core.add_text('Press \'Start Scan1\' to run duplicate images search', parent=self._new_scan_window_name)
+        core.add_text('Press \'Start Scan\' to run duplicate images search.', parent=self._new_scan_window_name)
 
         core.add_text( '',  parent=self._new_scan_window_name)
-
         core.add_separator(parent=self._new_scan_window_name)
 
         core.add_button(

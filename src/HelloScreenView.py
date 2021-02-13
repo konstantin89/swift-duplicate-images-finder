@@ -5,6 +5,9 @@ import time
 from resources import get_resource_full_path
 from utils import visit_source_web_page
 
+from version import get_version
+
+
 class HelloScreenView:
 
     def __init__(self, new_scan_click_callback: callable):
@@ -24,12 +27,14 @@ class HelloScreenView:
             core.configure_item(
                 self._window_name,
                     width=300,
-                    height=200,
+                    height=250,
                     x_pos=self._window_x_pos,
                     y_pos=self._window_y_pos,
                     label='Welcome!')
 
             core.add_text('Welcome to Duplicate Image Finder!')
+
+            core.add_text('Version: ' + get_version())
             
             core.add_drawing(
                 name='hello_screen_logo', 
@@ -44,7 +49,8 @@ class HelloScreenView:
                 uv_min=[0, 0], 
                 uv_max=[1, 1], 
                 tag="image")
-           
+
+            
             core.add_button(
                 name='start_new_scan_button',
                 label='Start New Scan', 
